@@ -1,4 +1,7 @@
+import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { AuthUser } from 'src/auth/auth-user.decorator';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
@@ -21,6 +24,9 @@ export class UserResolver {
   async login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
     return this.usersService.login(loginInput);
   }
-  @Query(returns => User)
-  async me(){}
+  @UseGuards(AuthGuard)
+  @Query((returns) => User)
+  me(@AuthUser() user: User) {
+    return user;
+  }
 }

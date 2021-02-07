@@ -14,6 +14,7 @@ import { User } from './users/entities/user.entity';
 import { JwtModule } from './jwt/jwt.module';
 import * as Joi from 'joi';
 import { JwtMiddleware } from './jwt/jwt.middleware';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -45,16 +46,12 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
     UsersModule,
     GraphQLModule.forRoot({
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      context: ({ req, connection }) => {
-        const TOKEN_KEY = 'x-jwt';
-        return {
-          token: req ? req.headers[TOKEN_KEY] : connection.context[TOKEN_KEY],
-        };
-      },
+      context: ({ req }) => ({ user: req['user'] }),
     }),
     JwtModule.forRoot({
       priavateKey: process.env.PRIVATE_KEY,
     }),
+    AuthModule,
   ],
   controllers: [],
   providers: [],
@@ -63,6 +60,6 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(JwtMiddleware)
-      .forRoutes({ path: '/graphql', method: RequestMethod.ALL });
+      .forRoutes({ path: '/graphql', method: RequestMethod.POST });
   }
 }
