@@ -1,4 +1,5 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
+import { CoreOutput } from '../dtos/core.dto';
 
 @InputType()
 export class CreateUserInput {
@@ -11,9 +12,4 @@ export class CreateUserInput {
 }
 
 @ObjectType()
-export class CreateUserOutput {
-  @Field((type) => Boolean)
-  ok: boolean;
-  @Field((typs) => String, { nullable: true })
-  error?: string;
-}
+export class CreateUserOutput extends CoreOutput {}
