@@ -14,9 +14,9 @@ export class UsersService {
     private usersRepository: Repository<User>,
     private readonly jwtService: JwtService,
   ) {}
-  getAllUsers(): Promise<User[]> {
+  async getAllUsers(): Promise<User[]> {
     try {
-      const users = this.usersRepository.find();
+      const users = await this.usersRepository.find();
       if (users) {
         return users;
       }
@@ -73,6 +73,21 @@ export class UsersService {
     return {
       ok: true,
       token,
+    };
+  }
+  async findById(
+    id: number,
+  ): Promise<{ user?: User; ok: boolean; error?: string }> {
+    const user = await this.usersRepository.findOne({ id });
+    if (!user) {
+      return {
+        ok: false,
+        error: 'User not found.',
+      };
+    }
+    return {
+      user,
+      ok: true,
     };
   }
 }

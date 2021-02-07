@@ -8,7 +8,7 @@ import { UsersService } from './users.service';
 export class UserResolver {
   constructor(private readonly usersService: UsersService) {}
   @Query((returns) => [User])
-  getAllUsers(): Promise<User[]> {
+  async getAllUsers(): Promise<User[]> {
     return this.usersService.getAllUsers();
   }
   @Mutation((returns) => CreateUserOutput)
@@ -21,4 +21,6 @@ export class UserResolver {
   async login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
     return this.usersService.login(loginInput);
   }
+  @Query(returns => User)
+  async me(){}
 }
