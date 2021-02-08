@@ -17,6 +17,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
 import { PodcastsModule } from './podcasts/podcasts.module';
 import { Podcast } from './podcasts/entities/podcast.entity';
+import { Episode } from './podcasts/entities/episode.entity';
 
 @Module({
   imports: [
@@ -40,7 +41,7 @@ import { Podcast } from './podcasts/entities/podcast.entity';
       port: +process.env.DB_PORT,
       username: process.env.DB_USERNAME,
       database: process.env.DB_NAME,
-      entities: [User, Podcast],
+      entities: [User, Podcast, Episode],
       synchronize: process.env.NODE_ENV !== 'prod',
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',

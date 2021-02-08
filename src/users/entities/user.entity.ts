@@ -19,14 +19,17 @@ export class User extends CoreEntity {
   @Column()
   @IsString()
   name: string;
+
   @Field((type) => String)
   @Column()
   @IsEmail()
   email: string;
+
   @Column()
   @Field((type) => String)
   @IsString()
   password: string;
+
   @Column({ type: 'enum', enum: UserRole })
   @Field((typs) => UserRole)
   @IsEnum(UserRole)

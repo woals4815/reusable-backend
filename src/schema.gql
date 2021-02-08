@@ -2,6 +2,20 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Episode {
+  id: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  title: String!
+  description: String
+  podcast: Podcast!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Podcast {
   id: Int!
   createdAt: DateTime!
@@ -9,12 +23,8 @@ type Podcast {
   title: String!
   category: [String!]!
   creator: User!
+  episodes: [Episode!]!
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type User {
   id: Int!
@@ -43,19 +53,41 @@ type LoginOutput {
   token: String
 }
 
+type CreateEpisodeOutput {
+  ok: Boolean!
+  error: String
+  episodeId: Float
+}
+
 type CreatePodcastOutput {
   ok: Boolean!
   error: String
 }
 
+type GetPodcastOutput {
+  ok: Boolean!
+  error: String
+  podcast: Podcast
+}
+
+type GetAllEpisodesOutput {
+  ok: Boolean!
+  error: String
+  episodes: [Episode!]
+}
+
 type Query {
   me: User!
+  getAllPodcasts: [Podcast!]!
+  getPodcast(podcastId: Float!): GetPodcastOutput!
+  getAllEpisodes(input: Float!): GetAllEpisodesOutput!
 }
 
 type Mutation {
   createUser(input: CreateUserInput!): CreateUserOutput!
   login(input: LoginInput!): LoginOutput!
   createPodcast(input: CreatePodcastInput!): CreatePodcastOutput!
+  createEpisode(input: CreateEpisodeInput!): CreateEpisodeOutput!
 }
 
 input CreateUserInput {
@@ -73,4 +105,10 @@ input LoginInput {
 input CreatePodcastInput {
   title: String!
   category: [String!]!
+}
+
+input CreateEpisodeInput {
+  podcastId: Float!
+  title: String!
+  description: String!
 }
