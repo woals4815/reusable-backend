@@ -22,4 +22,8 @@ export class Episode extends CoreEntity {
 
   @RelationId((episode: Episode) => episode.podcast)
   podcastId: number;
+
+  @Field((type) => Number, { nullable: true })
+  @Column({ nullable: true })
+  rating?: number;
 }

@@ -9,6 +9,7 @@ type Episode {
   title: String!
   description: String
   podcast: Podcast!
+  rating: Float
 }
 
 """
@@ -24,6 +25,7 @@ type Podcast {
   category: [String!]!
   creator: User!
   episodes: [Episode!]!
+  rating: Float
 }
 
 type User {
@@ -42,6 +44,11 @@ enum UserRole {
   Host
 }
 
+type CoreOutput {
+  ok: Boolean!
+  error: String
+}
+
 type CreateUserOutput {
   ok: Boolean!
   error: String
@@ -53,6 +60,11 @@ type LoginOutput {
   token: String
 }
 
+type CreatePodcastRatingOutput {
+  ok: Boolean!
+  error: String
+}
+
 type CreateEpisodeOutput {
   ok: Boolean!
   error: String
@@ -62,6 +74,12 @@ type CreateEpisodeOutput {
 type CreatePodcastOutput {
   ok: Boolean!
   error: String
+}
+
+type GetEpisodeOutput {
+  ok: Boolean!
+  error: String
+  episode: Episode
 }
 
 type GetPodcastOutput {
@@ -76,18 +94,32 @@ type GetAllEpisodesOutput {
   episodes: [Episode!]
 }
 
+type EditPodcastOutput {
+  ok: Boolean!
+  error: String
+}
+
 type Query {
   me: User!
   getAllPodcasts: [Podcast!]!
   getPodcast(podcastId: Float!): GetPodcastOutput!
   getAllEpisodes(input: Float!): GetAllEpisodesOutput!
+  getEpisode(input: GetEpisodeInput!): GetEpisodeOutput!
+}
+
+input GetEpisodeInput {
+  podcastId: Int!
+  episodeId: Int!
 }
 
 type Mutation {
   createUser(input: CreateUserInput!): CreateUserOutput!
   login(input: LoginInput!): LoginOutput!
   createPodcast(input: CreatePodcastInput!): CreatePodcastOutput!
+  ratePodcast(input: CreatePodcastRatingInput!): CreatePodcastRatingOutput!
+  editPodcast(input: EditPodcastInput!): EditPodcastOutput!
   createEpisode(input: CreateEpisodeInput!): CreateEpisodeOutput!
+  rateEpisode(input: CreateEpisodeRatingInput!): CoreOutput!
 }
 
 input CreateUserInput {
@@ -107,8 +139,25 @@ input CreatePodcastInput {
   category: [String!]!
 }
 
+input CreatePodcastRatingInput {
+  rating: Float!
+  podcastId: Int!
+}
+
+input EditPodcastInput {
+  title: String
+  category: [String!]
+  podcastId: Float!
+}
+
 input CreateEpisodeInput {
   podcastId: Float!
   title: String!
   description: String!
+}
+
+input CreateEpisodeRatingInput {
+  rating: Float!
+  podcastId: Int!
+  episodeId: Int!
 }

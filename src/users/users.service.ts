@@ -20,7 +20,6 @@ export class UsersService {
       const userExist = await this.usersRepository.findOne({
         email: createUserinput.email,
       });
-      console.log(userExist);
       if (userExist) {
         return {
           ok: false,
