@@ -15,6 +15,8 @@ import { JwtModule } from './jwt/jwt.module';
 import * as Joi from 'joi';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
+import { PodcastsModule } from './podcasts/podcasts.module';
+import { Podcast } from './podcasts/entities/podcast.entity';
 
 @Module({
   imports: [
@@ -38,7 +40,7 @@ import { AuthModule } from './auth/auth.module';
       port: +process.env.DB_PORT,
       username: process.env.DB_USERNAME,
       database: process.env.DB_NAME,
-      entities: [User],
+      entities: [User, Podcast],
       synchronize: process.env.NODE_ENV !== 'prod',
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
@@ -52,6 +54,7 @@ import { AuthModule } from './auth/auth.module';
       priavateKey: process.env.PRIVATE_KEY,
     }),
     AuthModule,
+    PodcastsModule,
   ],
   controllers: [],
   providers: [],

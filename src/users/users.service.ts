@@ -13,16 +13,6 @@ export class UsersService {
     private usersRepository: Repository<User>,
     private readonly jwtService: JwtService,
   ) {}
-  async getAllUsers(): Promise<User[]> {
-    try {
-      const users = await this.usersRepository.find();
-      if (users) {
-        return users;
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
   async createUser(
     createUserinput: CreateUserInput,
   ): Promise<CreateUserOutput> {
