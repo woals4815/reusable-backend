@@ -457,8 +457,11 @@ export class PodcastsService {
         searchResults: podcasts,
       };
     } catch (error) {
-      console.log(query.split("'")[0]);
       console.log(error);
+      return {
+        ok: false,
+        error: 'Cannot find the podcast.',
+      };
     }
   }
 }
