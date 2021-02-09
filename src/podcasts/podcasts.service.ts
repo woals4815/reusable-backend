@@ -21,7 +21,19 @@ import { GetPodcastOutput } from './dtos/get-podcast.dto';
 import { GetAllEpisodesOutput } from './dtos/getAllEpisodes.dto';
 import { Episode } from './entities/episode.entity';
 import { Podcast } from './entities/podcast.entity';
-import { EditPodcastInput, EditPodcastOutput } from './dtos/edit-podcast.dto';
+import {
+  EditEpisodeInput,
+  EditEpisodeOutput,
+  EditPodcastInput,
+  EditPodcastOutput,
+} from './dtos/edit.dto';
+import {
+  EditEpisodeRatingInput,
+  EditEpisodeRatingOutput,
+  EditPodcastRatingInput,
+  EditPodcastRatingOutput,
+} from './dtos/edit-rating.dto';
+import { Rating } from './entities/rating.entity';
 
 @Injectable()
 export class PodcastsService {
@@ -30,6 +42,8 @@ export class PodcastsService {
     private podcastRepository: Repository<Podcast>,
     @InjectRepository(Episode)
     private episodeRepository: Repository<Episode>,
+    @InjectRepository(Rating)
+    private ratingRepositoy: Repository<Rating>,
   ) {}
   async getAllPodcasts(): Promise<Podcast[]> {
     try {
@@ -181,7 +195,7 @@ export class PodcastsService {
       };
     }
   }
-  async createEpisodeRating({
+  /*async createEpisodeRating({
     rating,
     episodeId,
     podcastId,
@@ -209,11 +223,11 @@ export class PodcastsService {
         error,
       };
     }
-  }
-  async ratePodcast({
-    rating,
-    podcastId,
-  }: CreatePodcastRatingInput): Promise<CreatePodcastRatingOutput> {
+  }*/
+  async ratePodcast(
+    { rating, podcastId }: CreatePodcastRatingInput,
+    client: User,
+  ): Promise<CreatePodcastRatingOutput> {
     try {
       const { podcast, ok, error } = await this.getPodcast(podcastId);
       if (!ok) {
@@ -222,8 +236,13 @@ export class PodcastsService {
           error,
         };
       }
-      podcast.rating = rating;
-      await this.podcastRepository.save(podcast);
+      const rated = await this.ratingRepositoy.create({
+        rating,
+        podcast,
+      });
+      rated.ratedPerson = client;
+      await this.ratingRepositoy.save(rated);
+      console.log(rated);
       return {
         ok: true,
       };
@@ -271,4 +290,97 @@ export class PodcastsService {
       };
     }
   }
+  async editEpisode(
+    input: EditEpisodeInput,
+    creator: User,
+  ): Promise<EditEpisodeOutput> {
+    try {
+      const { podcast } = await this.getPodcast(input.podcastId);
+      const { episode, ok, error } = await this.getEpisode({
+        podcastId: input.podcastId,
+        episodeId: input.episodeId,
+      });
+      if (!ok) {
+        return {
+          ok,
+          error,
+        };
+      }
+      if (creator.id !== podcast.creatorId) {
+        return {
+          ok: false,
+          error: 'You cannot edit this podcast.',
+        };
+      }
+      if (input.title) {
+        episode.title = input.title;
+      }
+      if (input.description) {
+        episode.description = input.description;
+      }
+      await this.episodeRepository.save(episode);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        ok: false,
+        error: 'Cannot edit the episode.',
+      };
+    }
+  }
+  /*async editPodcastRating({
+    rating,
+    podcastId,
+  }: EditPodcastRatingInput): Promise<EditPodcastRatingOutput> {
+    try {
+      const { podcast, ok, error } = await this.findPodcastById(podcastId);
+      if (!ok) {
+        return {
+          ok: false,
+          error,
+        };
+      }
+      podcast.rating = rating;
+      await this.podcastRepository.save(podcast);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        ok: false,
+        error: 'Cannot edit rating.',
+      };
+    }
+  }*/
+  /*async editEpisodeRating({
+    rating,
+    podcastId,
+    episodeId,
+  }: EditEpisodeRatingInput): Promise<EditEpisodeRatingOutput> {
+    try {
+      const { episode, ok, error } = await this.getEpisode({
+        podcastId,
+        episodeId,
+      });
+      if (!ok) {
+        return {
+          ok: false,
+          error,
+        };
+      }
+      episode.rating = rating;
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        ok: false,
+        error: 'Cannot edit rating.',
+      };
+    }
+  }*/
 }

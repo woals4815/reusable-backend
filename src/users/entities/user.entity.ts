@@ -1,10 +1,18 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm';
 import { CoreEntity } from './core.entity';
 import { IsEmail, IsEnum, IsString } from 'class-validator';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Podcast } from 'src/podcasts/entities/podcast.entity';
+import { Rating } from 'src/podcasts/entities/rating.entity';
 
 export enum UserRole {
   Client = 'Client',
@@ -38,6 +46,10 @@ export class User extends CoreEntity {
   @OneToMany(() => Podcast, (podcast) => podcast.creator)
   @Field((typs) => [Podcast])
   podcasts: Podcast[];
+
+  @Field((type) => [Rating], { nullable: true })
+  @OneToMany(() => Rating, (rating) => rating.ratedPerson, { nullable: true })
+  rated?: Rating[];
 
   @BeforeInsert()
   @BeforeUpdate()

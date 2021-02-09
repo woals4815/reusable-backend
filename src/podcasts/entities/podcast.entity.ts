@@ -3,6 +3,7 @@ import { CoreEntity } from 'src/users/entities/core.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { Episode } from './episode.entity';
+import { Rating } from './rating.entity';
 
 @Entity()
 @ObjectType()
@@ -26,7 +27,7 @@ export class Podcast extends CoreEntity {
   @OneToMany(() => Episode, (episode) => episode.podcast)
   episodes: Episode[];
 
-  @Column({ nullable: true })
-  @Field((type) => Number, { nullable: true })
-  rating?: number;
+  @OneToMany(() => Rating, (rating) => rating.podcast, { nullable: true })
+  @Field((type) => [Rating], { nullable: true })
+  ratings?: Rating[];
 }

@@ -10,3 +10,18 @@ export class EditPodcastInput extends PartialType(CreatePodcastInput) {
 
 @ObjectType()
 export class EditPodcastOutput extends CoreOutput {}
+
+@InputType()
+export class EditEpisodeInput {
+  @Field((type) => Number)
+  podcastId: number;
+  @Field((type) => Number)
+  episodeId: number;
+  @Field((type) => String, { nullable: true })
+  title?: string;
+  @Field((type) => String, { nullable: true })
+  description?: string;
+}
+
+@ObjectType()
+export class EditEpisodeOutput extends CoreOutput {}

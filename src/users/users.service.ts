@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from 'src/jwt/jwt.service';
 import { Repository } from 'typeorm';
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
+import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
 
@@ -77,5 +78,49 @@ export class UsersService {
       user,
       ok: true,
     };
+  }
+  async editProfile(
+    input: EditProfileInput,
+    user: User,
+  ): Promise<EditProfileOutput> {
+    try {
+      const { user: userFound, ok, error } = await this.findById(user.id);
+      const userExist = await this.usersRepository.findOneOrFail({
+        email: input.email,
+      });
+      if (userExist) {
+        return {
+          ok: false,
+          error: 'User exists.',
+        };
+      }
+      if (!ok) {
+        return {
+          ok,
+          error,
+        };
+      }
+      if (userFound.id !== user.id) {
+        return {
+          ok: false,
+          error: 'You cannot edit this profile',
+        };
+      }
+      if (input.email) {
+        userFound.email = input.email;
+      }
+      if (input.password) {
+        userFound.password = input.password;
+      }
+      await this.usersRepository.save(userFound);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error: 'Cannot edit your profile.',
+      };
+    }
   }
 }

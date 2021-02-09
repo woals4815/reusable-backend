@@ -4,6 +4,7 @@ import { AuthUser } from 'src/auth/auth-user.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Role } from 'src/auth/user-role.decorator';
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
+import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -25,5 +26,13 @@ export class UserResolver {
   @Query((returns) => User)
   me(@AuthUser() user: User) {
     return user;
+  }
+  @Role(['Any'])
+  @Mutation((returns) => EditProfileOutput)
+  async editProfile(
+    @Args('input') input: EditProfileInput,
+    @AuthUser() user: User,
+  ): Promise<EditProfileOutput> {
+    return this.usersService.editProfile(input, user);
   }
 }

@@ -23,7 +23,19 @@ import { GetAllEpisodesOutput } from './dtos/getAllEpisodes.dto';
 import { Episode } from './entities/episode.entity';
 import { Podcast } from './entities/podcast.entity';
 import { PodcastsService } from './podcasts.service';
-import { EditPodcastInput, EditPodcastOutput } from './dtos/edit-podcast.dto';
+import {
+  EditEpisodeInput,
+  EditEpisodeOutput,
+  EditPodcastInput,
+  EditPodcastOutput,
+} from './dtos/edit.dto';
+import {
+  EditEpisodeRatingInput,
+  EditEpisodeRatingOutput,
+  EditPodcastRatingInput,
+  EditPodcastRatingOutput,
+} from './dtos/edit-rating.dto';
+import { Rating } from './entities/rating.entity';
 
 @Resolver((of) => Podcast)
 export class PodcastResolver {
@@ -49,14 +61,6 @@ export class PodcastResolver {
     return this.podcastService.createPodcast(createPodcastInput, host);
   }
 
-  @Mutation((returns) => CreatePodcastRatingOutput)
-  @Role(['Client'])
-  async ratePodcast(
-    @Args('input') input: CreatePodcastRatingInput,
-  ): Promise<CreatePodcastRatingOutput> {
-    return this.podcastService.ratePodcast(input);
-  }
-
   @Mutation((returns) => EditPodcastOutput)
   @Role(['Host'])
   async editPodcast(
@@ -65,6 +69,14 @@ export class PodcastResolver {
   ): Promise<EditPodcastOutput> {
     return this.podcastService.editPodcast(input, host);
   }
+
+  /*@Mutation((returns) => EditPodcastRatingOutput)
+  @Role(['Client'])
+  async editPodcastRating(
+    @Args('input') input: EditPodcastRatingInput,
+  ): Promise<EditPodcastRatingOutput> {
+    return this.podcastService.editPodcastRating(input);
+  }*/
 }
 @Resolver((of) => Episode)
 export class EpisodeResolver {
@@ -91,11 +103,39 @@ export class EpisodeResolver {
     return this.podcastService.createEpisode(createEpisodeInput);
   }
 
-  @Mutation((returns) => CoreOutput)
+  /*@Mutation((returns) => CoreOutput)
   @Role(['Client'])
   async rateEpisode(
     @Args('input') input: CreateEpisodeRatingInput,
   ): Promise<CreateEpisodeRatingOutput> {
     return this.podcastService.createEpisodeRating(input);
+  }*/
+
+  @Mutation((returns) => EditEpisodeOutput)
+  @Role(['Host'])
+  async editEpisode(
+    @Args('input') input: EditEpisodeInput,
+    @AuthUser() creator: User,
+  ): Promise<EditEpisodeOutput> {
+    return this.podcastService.editEpisode(input, creator);
+  }
+
+  /*@Mutation((returns) => EditEpisodeRatingOutput)
+  @Role(['Client'])
+  async editEpisodeRating(@Args('input') input: EditEpisodeRatingInput) {
+    return this.podcastService.editEpisodeRating(input);
+  }*/
+}
+
+@Resolver((of) => Rating)
+export class RatingResolver {
+  constructor(private readonly podcastService: PodcastsService) {}
+  @Mutation((returns) => CreatePodcastRatingOutput)
+  @Role(['Client'])
+  async ratePodcast(
+    @Args('input') input: CreatePodcastRatingInput,
+    @AuthUser() client: User,
+  ): Promise<CreatePodcastRatingOutput> {
+    return this.podcastService.ratePodcast(input, client);
   }
 }

@@ -18,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
 import { PodcastsModule } from './podcasts/podcasts.module';
 import { Podcast } from './podcasts/entities/podcast.entity';
 import { Episode } from './podcasts/entities/episode.entity';
+import { Rating } from './podcasts/entities/rating.entity';
 
 @Module({
   imports: [
@@ -41,7 +42,7 @@ import { Episode } from './podcasts/entities/episode.entity';
       port: +process.env.DB_PORT,
       username: process.env.DB_USERNAME,
       database: process.env.DB_NAME,
-      entities: [User, Podcast, Episode],
+      entities: [User, Podcast, Episode, Rating],
       synchronize: process.env.NODE_ENV !== 'prod',
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',

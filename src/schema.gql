@@ -17,6 +17,15 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type Rating {
+  id: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  rating: Float!
+  podcast: Podcast!
+  ratedPerson: User!
+}
+
 type Podcast {
   id: Int!
   createdAt: DateTime!
@@ -25,7 +34,7 @@ type Podcast {
   category: [String!]!
   creator: User!
   episodes: [Episode!]!
-  rating: Float
+  ratings: [Rating!]
 }
 
 type User {
@@ -37,6 +46,7 @@ type User {
   password: String!
   role: UserRole!
   podcasts: [Podcast!]!
+  rated: [Rating!]
 }
 
 enum UserRole {
@@ -44,12 +54,12 @@ enum UserRole {
   Host
 }
 
-type CoreOutput {
+type CreateUserOutput {
   ok: Boolean!
   error: String
 }
 
-type CreateUserOutput {
+type EditProfileOutput {
   ok: Boolean!
   error: String
 }
@@ -99,6 +109,11 @@ type EditPodcastOutput {
   error: String
 }
 
+type EditEpisodeOutput {
+  ok: Boolean!
+  error: String
+}
+
 type Query {
   me: User!
   getAllPodcasts: [Podcast!]!
@@ -115,11 +130,12 @@ input GetEpisodeInput {
 type Mutation {
   createUser(input: CreateUserInput!): CreateUserOutput!
   login(input: LoginInput!): LoginOutput!
+  editProfile(input: EditProfileInput!): EditProfileOutput!
   createPodcast(input: CreatePodcastInput!): CreatePodcastOutput!
-  ratePodcast(input: CreatePodcastRatingInput!): CreatePodcastRatingOutput!
   editPodcast(input: EditPodcastInput!): EditPodcastOutput!
   createEpisode(input: CreateEpisodeInput!): CreateEpisodeOutput!
-  rateEpisode(input: CreateEpisodeRatingInput!): CoreOutput!
+  editEpisode(input: EditEpisodeInput!): EditEpisodeOutput!
+  ratePodcast(input: CreatePodcastRatingInput!): CreatePodcastRatingOutput!
 }
 
 input CreateUserInput {
@@ -134,14 +150,15 @@ input LoginInput {
   password: String!
 }
 
+input EditProfileInput {
+  userId: Float!
+  email: String
+  password: String
+}
+
 input CreatePodcastInput {
   title: String!
   category: [String!]!
-}
-
-input CreatePodcastRatingInput {
-  rating: Float!
-  podcastId: Int!
 }
 
 input EditPodcastInput {
@@ -156,8 +173,14 @@ input CreateEpisodeInput {
   description: String!
 }
 
-input CreateEpisodeRatingInput {
+input EditEpisodeInput {
+  podcastId: Float!
+  episodeId: Float!
+  title: String
+  description: String
+}
+
+input CreatePodcastRatingInput {
   rating: Float!
   podcastId: Int!
-  episodeId: Int!
 }
