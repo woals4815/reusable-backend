@@ -1,7 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { CoreEntity } from 'src/users/entities/core.entity';
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { Podcast } from './podcast.entity';
+import { Rating } from './rating.entity';
 
 @ObjectType()
 @Entity()
@@ -23,7 +24,7 @@ export class Episode extends CoreEntity {
   @RelationId((episode: Episode) => episode.podcast)
   podcastId: number;
 
-  @Field((type) => Number, { nullable: true })
-  @Column({ nullable: true })
-  rating?: number;
+  @Field((type) => [Rating], { nullable: true })
+  @OneToMany(() => Rating, (rating) => rating.episode, { nullable: true })
+  ratings?: Rating[];
 }

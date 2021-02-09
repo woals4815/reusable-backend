@@ -4,6 +4,7 @@ import {
   BeforeUpdate,
   Column,
   Entity,
+  JoinTable,
   ManyToMany,
   OneToMany,
 } from 'typeorm';
@@ -50,6 +51,10 @@ export class User extends CoreEntity {
   @Field((type) => [Rating], { nullable: true })
   @OneToMany(() => Rating, (rating) => rating.ratedPerson, { nullable: true })
   rated?: Rating[];
+
+  @ManyToMany(() => Podcast, (podcast) => podcast.subscribers)
+  @JoinTable()
+  subscribedPodcast: Podcast[];
 
   @BeforeInsert()
   @BeforeUpdate()

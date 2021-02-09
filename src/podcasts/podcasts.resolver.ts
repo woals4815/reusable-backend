@@ -69,14 +69,6 @@ export class PodcastResolver {
   ): Promise<EditPodcastOutput> {
     return this.podcastService.editPodcast(input, host);
   }
-
-  /*@Mutation((returns) => EditPodcastRatingOutput)
-  @Role(['Client'])
-  async editPodcastRating(
-    @Args('input') input: EditPodcastRatingInput,
-  ): Promise<EditPodcastRatingOutput> {
-    return this.podcastService.editPodcastRating(input);
-  }*/
 }
 @Resolver((of) => Episode)
 export class EpisodeResolver {
@@ -103,14 +95,6 @@ export class EpisodeResolver {
     return this.podcastService.createEpisode(createEpisodeInput);
   }
 
-  /*@Mutation((returns) => CoreOutput)
-  @Role(['Client'])
-  async rateEpisode(
-    @Args('input') input: CreateEpisodeRatingInput,
-  ): Promise<CreateEpisodeRatingOutput> {
-    return this.podcastService.createEpisodeRating(input);
-  }*/
-
   @Mutation((returns) => EditEpisodeOutput)
   @Role(['Host'])
   async editEpisode(
@@ -119,12 +103,6 @@ export class EpisodeResolver {
   ): Promise<EditEpisodeOutput> {
     return this.podcastService.editEpisode(input, creator);
   }
-
-  /*@Mutation((returns) => EditEpisodeRatingOutput)
-  @Role(['Client'])
-  async editEpisodeRating(@Args('input') input: EditEpisodeRatingInput) {
-    return this.podcastService.editEpisodeRating(input);
-  }*/
 }
 
 @Resolver((of) => Rating)
@@ -137,5 +115,29 @@ export class RatingResolver {
     @AuthUser() client: User,
   ): Promise<CreatePodcastRatingOutput> {
     return this.podcastService.ratePodcast(input, client);
+  }
+  @Mutation((returns) => CoreOutput)
+  @Role(['Client'])
+  async rateEpisode(
+    @Args('input') input: CreateEpisodeRatingInput,
+    @AuthUser() client: User,
+  ): Promise<CreateEpisodeRatingOutput> {
+    return this.podcastService.createEpisodeRating(input, client);
+  }
+  @Mutation((returns) => EditPodcastRatingOutput)
+  @Role(['Client'])
+  async editPodcastRating(
+    @Args('input') input: EditPodcastRatingInput,
+    @AuthUser() client: User,
+  ): Promise<EditPodcastRatingOutput> {
+    return this.podcastService.editPodcastRating(input, client);
+  }
+  @Mutation((returns) => EditEpisodeRatingOutput)
+  @Role(['Client'])
+  async editEpisodeRating(
+    @Args('input') input: EditEpisodeRatingInput,
+    @AuthUser() client: User,
+  ) {
+    return this.podcastService.editEpisodeRating(input, client);
   }
 }

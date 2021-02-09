@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from 'src/jwt/jwt.service';
+import { PodcastsService } from 'src/podcasts/podcasts.service';
 import { Repository } from 'typeorm';
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
 import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
+import { GetSubscriptionOutput } from './dtos/subscriptions.dto';
+import { ToggleSubscribeOutput } from './dtos/toggle-subscribe.dto';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -12,6 +15,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private readonly podcastService: PodcastsService,
     private readonly jwtService: JwtService,
   ) {}
   async createUser(
@@ -67,7 +71,10 @@ export class UsersService {
   async findById(
     id: number,
   ): Promise<{ user?: User; ok: boolean; error?: string }> {
-    const user = await this.usersRepository.findOne({ id });
+    const user = await this.usersRepository.findOne(
+      { id },
+      { relations: ['subscribedPodcast'] },
+    );
     if (!user) {
       return {
         ok: false,
@@ -120,6 +127,62 @@ export class UsersService {
       return {
         ok: false,
         error: 'Cannot edit your profile.',
+      };
+    }
+  }
+  async toggleSubscribe(
+    podcastId: number,
+    user: User,
+  ): Promise<ToggleSubscribeOutput> {
+    try {
+      const {
+        podcast: podcastExist,
+        ok,
+        error,
+      } = await this.podcastService.findPodcastById(podcastId);
+      if (!ok) {
+        return {
+          ok,
+          error,
+        };
+      }
+      if (
+        user.subscribedPodcast.find((podcast) => podcast.id === podcastExist.id)
+      ) {
+        user.subscribedPodcast = user.subscribedPodcast.filter(
+          (podcast) => podcast.id !== podcastId,
+        );
+        await this.usersRepository.save(user);
+        return {
+          ok: true,
+        };
+      }
+      user.subscribedPodcast.push(podcastExist);
+      await this.usersRepository.save(user);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        ok: false,
+        error: 'Cannot subscribe the podcast.',
+      };
+    }
+  }
+  async getSubscriptions(user: User): Promise<GetSubscriptionOutput> {
+    try {
+      const subscriptions = user.subscribedPodcast;
+      console.log(subscriptions);
+      return {
+        ok: true,
+        subscriptions,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        ok: false,
+        error: 'Cannot get podcasts.',
       };
     }
   }

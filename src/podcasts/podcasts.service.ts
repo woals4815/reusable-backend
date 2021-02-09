@@ -195,11 +195,10 @@ export class PodcastsService {
       };
     }
   }
-  /*async createEpisodeRating({
-    rating,
-    episodeId,
-    podcastId,
-  }: CreateEpisodeRatingInput): Promise<CreateEpisodeRatingOutput> {
+  async createEpisodeRating(
+    { rating, episodeId, podcastId }: CreateEpisodeRatingInput,
+    client: User,
+  ): Promise<CreateEpisodeRatingOutput> {
     try {
       const { episode, ok, error } = await this.getEpisode({
         podcastId,
@@ -211,8 +210,22 @@ export class PodcastsService {
           error,
         };
       }
-      episode.rating = rating;
-      await this.episodeRepository.save(episode);
+      const ratingExists = this.ratingRepositoy.findOne({
+        ratedPerson: client,
+      });
+      if (ratingExists) {
+        return {
+          ok: false,
+          error: 'You already rated.',
+        };
+      }
+      const episodeRating = await this.ratingRepositoy.create({
+        rating,
+        episode,
+      });
+      episodeRating.episode = episode;
+      episodeRating.ratedPerson = client;
+      await this.ratingRepositoy.save(episodeRating);
       return {
         ok: true,
       };
@@ -223,7 +236,7 @@ export class PodcastsService {
         error,
       };
     }
-  }*/
+  }
   async ratePodcast(
     { rating, podcastId }: CreatePodcastRatingInput,
     client: User,
@@ -234,6 +247,15 @@ export class PodcastsService {
         return {
           ok,
           error,
+        };
+      }
+      const ratingExists = this.ratingRepositoy.findOne({
+        ratedPerson: client,
+      });
+      if (ratingExists) {
+        return {
+          ok: false,
+          error: 'You already rated.',
         };
       }
       const rated = await this.ratingRepositoy.create({
@@ -330,10 +352,10 @@ export class PodcastsService {
       };
     }
   }
-  /*async editPodcastRating({
-    rating,
-    podcastId,
-  }: EditPodcastRatingInput): Promise<EditPodcastRatingOutput> {
+  async editPodcastRating(
+    { rating, podcastId }: EditPodcastRatingInput,
+    client: User,
+  ): Promise<EditPodcastRatingOutput> {
     try {
       const { podcast, ok, error } = await this.findPodcastById(podcastId);
       if (!ok) {
@@ -342,8 +364,20 @@ export class PodcastsService {
           error,
         };
       }
-      podcast.rating = rating;
-      await this.podcastRepository.save(podcast);
+      const ratingExist = await this.ratingRepositoy.findOne(
+        { podcast },
+        { relations: ['ratedPerson'] },
+      );
+      if (ratingExist.ratedPerson.id !== client.id) {
+        return {
+          ok: false,
+          error: "You didn't rate the podcast.",
+        };
+      }
+      if (ratingExist) {
+        ratingExist.rating = rating;
+      }
+      await this.ratingRepositoy.save(ratingExist);
       return {
         ok: true,
       };
@@ -354,12 +388,11 @@ export class PodcastsService {
         error: 'Cannot edit rating.',
       };
     }
-  }*/
-  /*async editEpisodeRating({
-    rating,
-    podcastId,
-    episodeId,
-  }: EditEpisodeRatingInput): Promise<EditEpisodeRatingOutput> {
+  }
+  async editEpisodeRating(
+    { rating, podcastId, episodeId }: EditEpisodeRatingInput,
+    client: User,
+  ): Promise<EditEpisodeRatingOutput> {
     try {
       const { episode, ok, error } = await this.getEpisode({
         podcastId,
@@ -371,7 +404,19 @@ export class PodcastsService {
           error,
         };
       }
-      episode.rating = rating;
+      const ratingExist = await this.ratingRepositoy.findOne(
+        { episode },
+        { relations: ['ratedPerson'] },
+      );
+      console.log(ratingExist);
+      if (ratingExist.ratedPerson.id !== client.id) {
+        return {
+          ok: false,
+          error: "You didn't rate the episode.",
+        };
+      }
+      ratingExist.rating = rating;
+      await this.ratingRepositoy.save(ratingExist);
       return {
         ok: true,
       };
@@ -382,5 +427,5 @@ export class PodcastsService {
         error: 'Cannot edit rating.',
       };
     }
-  }*/
+  }
 }

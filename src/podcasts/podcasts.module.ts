@@ -18,5 +18,6 @@ import { PodcastsService } from './podcasts.service';
     EpisodeResolver,
     RatingResolver,
   ],
+  exports: [PodcastsService],
 })
 export class PodcastsModule {}

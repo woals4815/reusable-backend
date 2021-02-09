@@ -9,7 +9,7 @@ type Episode {
   title: String!
   description: String
   podcast: Podcast!
-  rating: Float
+  ratings: [Rating!]
 }
 
 """
@@ -24,17 +24,7 @@ type Rating {
   rating: Float!
   podcast: Podcast!
   ratedPerson: User!
-}
-
-type Podcast {
-  id: Int!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  title: String!
-  category: [String!]!
-  creator: User!
-  episodes: [Episode!]!
-  ratings: [Rating!]
+  episode: Episode!
 }
 
 type User {
@@ -54,20 +44,20 @@ enum UserRole {
   Host
 }
 
-type CreateUserOutput {
-  ok: Boolean!
-  error: String
+type Podcast {
+  id: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  title: String!
+  category: [String!]!
+  creator: User!
+  episodes: [Episode!]!
+  ratings: [Rating!]
 }
 
-type EditProfileOutput {
+type CoreOutput {
   ok: Boolean!
   error: String
-}
-
-type LoginOutput {
-  ok: Boolean!
-  error: String
-  token: String
 }
 
 type CreatePodcastRatingOutput {
@@ -114,8 +104,46 @@ type EditEpisodeOutput {
   error: String
 }
 
+type EditPodcastRatingOutput {
+  ok: Boolean!
+  error: String
+}
+
+type EditEpisodeRatingOutput {
+  ok: Boolean!
+  error: String
+}
+
+type CreateUserOutput {
+  ok: Boolean!
+  error: String
+}
+
+type EditProfileOutput {
+  ok: Boolean!
+  error: String
+}
+
+type LoginOutput {
+  ok: Boolean!
+  error: String
+  token: String
+}
+
+type GetSubscriptionOutput {
+  ok: Boolean!
+  error: String
+  subscriptions: [Podcast!]
+}
+
+type ToggleSubscribeOutput {
+  ok: Boolean!
+  error: String
+}
+
 type Query {
   me: User!
+  getSubscriptions: GetSubscriptionOutput!
   getAllPodcasts: [Podcast!]!
   getPodcast(podcastId: Float!): GetPodcastOutput!
   getAllEpisodes(input: Float!): GetAllEpisodesOutput!
@@ -131,11 +159,15 @@ type Mutation {
   createUser(input: CreateUserInput!): CreateUserOutput!
   login(input: LoginInput!): LoginOutput!
   editProfile(input: EditProfileInput!): EditProfileOutput!
+  toggleSubscribe(input: Float!): ToggleSubscribeOutput!
   createPodcast(input: CreatePodcastInput!): CreatePodcastOutput!
   editPodcast(input: EditPodcastInput!): EditPodcastOutput!
   createEpisode(input: CreateEpisodeInput!): CreateEpisodeOutput!
   editEpisode(input: EditEpisodeInput!): EditEpisodeOutput!
   ratePodcast(input: CreatePodcastRatingInput!): CreatePodcastRatingOutput!
+  rateEpisode(input: CreateEpisodeRatingInput!): CoreOutput!
+  editPodcastRating(input: EditPodcastRatingInput!): EditPodcastRatingOutput!
+  editEpisodeRating(input: EditEpisodeRatingInput!): EditEpisodeRatingOutput!
 }
 
 input CreateUserInput {
@@ -183,4 +215,21 @@ input EditEpisodeInput {
 input CreatePodcastRatingInput {
   rating: Float!
   podcastId: Int!
+}
+
+input CreateEpisodeRatingInput {
+  rating: Float!
+  podcastId: Int!
+  episodeId: Int!
+}
+
+input EditPodcastRatingInput {
+  rating: Float!
+  podcastId: Int!
+}
+
+input EditEpisodeRatingInput {
+  rating: Float!
+  podcastId: Int!
+  episodeId: Int!
 }

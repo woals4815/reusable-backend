@@ -3,6 +3,7 @@ import { Max, Min } from 'class-validator';
 import { CoreEntity } from 'src/users/entities/core.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, ManyToMany, ManyToOne, RelationId } from 'typeorm';
+import { Episode } from './episode.entity';
 import { Podcast } from './podcast.entity';
 
 @ObjectType()
@@ -21,4 +22,8 @@ export class Rating extends CoreEntity {
   @Field((type) => User)
   @ManyToOne(() => User, (user) => user.rated)
   ratedPerson: User;
+
+  @Field((type) => Episode)
+  @ManyToOne(() => Episode, (episode) => episode.ratings)
+  episode: Episode;
 }
