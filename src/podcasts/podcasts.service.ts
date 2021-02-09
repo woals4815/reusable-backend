@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import {
   CreateEpisodeRatingInput,
   CreateEpisodeRatingOutput,
@@ -34,6 +34,10 @@ import {
   EditPodcastRatingOutput,
 } from './dtos/edit-rating.dto';
 import { Rating } from './entities/rating.entity';
+import {
+  SearchPodcastInput,
+  SearchPodcastOutput,
+} from './dtos/search-podcast.dto';
 
 @Injectable()
 export class PodcastsService {
@@ -426,6 +430,35 @@ export class PodcastsService {
         ok: false,
         error: 'Cannot edit rating.',
       };
+    }
+  }
+  async searchPodcastName({
+    query,
+    page,
+  }: SearchPodcastInput): Promise<SearchPodcastOutput> {
+    try {
+      const [podcasts, totalResult] = await this.podcastRepository.findAndCount(
+        {
+          where: {
+            title: Raw((title) => {
+              if (query.includes("'")) {
+                return `${title} ILIKE E'%${query.split("'")[0]}\''s%'`;
+              }
+              return `${title} ILIKE '%${query}%'`;
+            }),
+          },
+        },
+      );
+      console.log(podcasts, totalResult);
+      return {
+        ok: true,
+        pageNumber: page,
+        totalResultNumber: totalResult,
+        searchResults: podcasts,
+      };
+    } catch (error) {
+      console.log(query.split("'")[0]);
+      console.log(error);
     }
   }
 }

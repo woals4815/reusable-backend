@@ -36,6 +36,10 @@ import {
   EditPodcastRatingOutput,
 } from './dtos/edit-rating.dto';
 import { Rating } from './entities/rating.entity';
+import {
+  SearchPodcastInput,
+  SearchPodcastOutput,
+} from './dtos/search-podcast.dto';
 
 @Resolver((of) => Podcast)
 export class PodcastResolver {
@@ -68,6 +72,14 @@ export class PodcastResolver {
     @AuthUser() host: User,
   ): Promise<EditPodcastOutput> {
     return this.podcastService.editPodcast(input, host);
+  }
+
+  @Query((returns) => SearchPodcastOutput)
+  @Role(['Any'])
+  async searchPodcastName(
+    @Args('input') input: SearchPodcastInput,
+  ): Promise<SearchPodcastOutput> {
+    return this.podcastService.searchPodcastName(input);
   }
 }
 @Resolver((of) => Episode)

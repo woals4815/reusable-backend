@@ -114,6 +114,14 @@ type EditEpisodeRatingOutput {
   error: String
 }
 
+type SearchPodcastOutput {
+  ok: Boolean!
+  error: String
+  searchResults: [Podcast!]
+  pageNumber: Float
+  totalResultNumber: Float
+}
+
 type CreateUserOutput {
   ok: Boolean!
   error: String
@@ -146,8 +154,14 @@ type Query {
   getSubscriptions: GetSubscriptionOutput!
   getAllPodcasts: [Podcast!]!
   getPodcast(podcastId: Float!): GetPodcastOutput!
+  searchPodcastName(input: SearchPodcastInput!): SearchPodcastOutput!
   getAllEpisodes(input: Float!): GetAllEpisodesOutput!
   getEpisode(input: GetEpisodeInput!): GetEpisodeOutput!
+}
+
+input SearchPodcastInput {
+  query: String!
+  page: Float!
 }
 
 input GetEpisodeInput {
