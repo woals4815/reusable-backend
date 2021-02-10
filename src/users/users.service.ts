@@ -5,7 +5,12 @@ import { PodcastsService } from 'src/podcasts/podcasts.service';
 import { Repository } from 'typeorm';
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
 import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
+import { GetWatchedEpisodesOutput } from './dtos/get-watched-episodes.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
+import {
+  MarkWatchedEpisodeInput,
+  MarkWatchedEpisodeOutput,
+} from './dtos/mark-watched.dto';
 import { GetSubscriptionOutput } from './dtos/subscriptions.dto';
 import { ToggleSubscribeOutput } from './dtos/toggle-subscribe.dto';
 import { User } from './entities/user.entity';
@@ -183,6 +188,57 @@ export class UsersService {
       return {
         ok: false,
         error: 'Cannot get podcasts.',
+      };
+    }
+  }
+  async markWatchedEpisode(
+    input: MarkWatchedEpisodeInput,
+    user: User,
+  ): Promise<MarkWatchedEpisodeOutput> {
+    try {
+      const {
+        episode: episodeExist,
+        ok,
+        error,
+      } = await this.podcastService.getEpisode(input);
+      if (!ok) {
+        return {
+          ok,
+          error,
+        };
+      }
+      if (
+        user.watchedEpisodes.find((episode) => episode.id === episodeExist.id)
+      ) {
+        return {
+          ok: true,
+        };
+      }
+      user.watchedEpisodes.push(episodeExist);
+      await this.usersRepository.save(user);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        ok: false,
+        error: 'Cannot mark the episode watcehd.',
+      };
+    }
+  }
+  async getWatchedEpisodes(user: User): Promise<GetWatchedEpisodesOutput> {
+    try {
+      const episodesWatched = user.watchedEpisodes;
+      return {
+        ok: true,
+        watchedEpisodes: episodesWatched,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        ok: false,
+        error: 'Cannot get episodes watched.',
       };
     }
   }

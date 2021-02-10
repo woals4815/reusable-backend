@@ -2,7 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Max, Min } from 'class-validator';
 import { CoreEntity } from 'src/users/entities/core.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Column, Entity, ManyToMany, ManyToOne, RelationId } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { Episode } from './episode.entity';
 import { Podcast } from './podcast.entity';
 
@@ -16,11 +16,13 @@ export class Rating extends CoreEntity {
   rating: number;
 
   @Field((type) => Podcast)
-  @ManyToOne(() => Podcast, (podcast) => podcast.ratings)
+  @ManyToOne(() => Podcast, (podcast) => podcast.ratings, {
+    onDelete: 'CASCADE',
+  })
   podcast: Podcast;
 
   @Field((type) => User)
-  @ManyToOne(() => User, (user) => user.rated)
+  @ManyToOne(() => User, (user) => user.rated, { onDelete: 'CASCADE' })
   ratedPerson: User;
 
   @Field((type) => Episode)

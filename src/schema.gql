@@ -2,14 +2,13 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Episode {
+type Category {
   id: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
-  title: String!
-  description: String
-  podcast: Podcast!
-  ratings: [Rating!]
+  name: String!
+  slug: String!
+  podcasts: [Podcast!]!
 }
 
 """
@@ -25,6 +24,17 @@ type Rating {
   podcast: Podcast!
   ratedPerson: User!
   episode: Episode!
+}
+
+type Podcast {
+  id: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  title: String!
+  category: Category!
+  creator: User!
+  episodes: [Episode!]!
+  ratings: [Rating!]
 }
 
 type User {
@@ -44,14 +54,13 @@ enum UserRole {
   Host
 }
 
-type Podcast {
+type Episode {
   id: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
   title: String!
-  category: [String!]!
-  creator: User!
-  episodes: [Episode!]!
+  description: String
+  podcast: Podcast!
   ratings: [Rating!]
 }
 
@@ -118,7 +127,6 @@ type SearchPodcastOutput {
   ok: Boolean!
   error: String
   searchResults: [Podcast!]
-  pageNumber: Float
   totalResultNumber: Float
 }
 
@@ -132,10 +140,21 @@ type EditProfileOutput {
   error: String
 }
 
+type GetWatchedEpisodesOutput {
+  ok: Boolean!
+  error: String
+  watchedEpisodes: [Episode!]
+}
+
 type LoginOutput {
   ok: Boolean!
   error: String
   token: String
+}
+
+type MarkWatchedEpisodeOutput {
+  ok: Boolean!
+  error: String
 }
 
 type GetSubscriptionOutput {
@@ -152,6 +171,7 @@ type ToggleSubscribeOutput {
 type Query {
   me: User!
   getSubscriptions: GetSubscriptionOutput!
+  getWatchedEpisodes: GetWatchedEpisodesOutput!
   getAllPodcasts: [Podcast!]!
   getPodcast(podcastId: Float!): GetPodcastOutput!
   searchPodcastName(input: SearchPodcastInput!): SearchPodcastOutput!
@@ -161,7 +181,6 @@ type Query {
 
 input SearchPodcastInput {
   query: String!
-  page: Float!
 }
 
 input GetEpisodeInput {
@@ -173,7 +192,8 @@ type Mutation {
   createUser(input: CreateUserInput!): CreateUserOutput!
   login(input: LoginInput!): LoginOutput!
   editProfile(input: EditProfileInput!): EditProfileOutput!
-  toggleSubscribe(input: Float!): ToggleSubscribeOutput!
+  toggleSubscribe(podcastId: Float!): ToggleSubscribeOutput!
+  markWatchedEpisode(input: MarkWatchedEpisodeInput!): MarkWatchedEpisodeOutput!
   createPodcast(input: CreatePodcastInput!): CreatePodcastOutput!
   editPodcast(input: EditPodcastInput!): EditPodcastOutput!
   createEpisode(input: CreateEpisodeInput!): CreateEpisodeOutput!
@@ -202,14 +222,19 @@ input EditProfileInput {
   password: String
 }
 
+input MarkWatchedEpisodeInput {
+  podcastId: Float!
+  episodeId: Float!
+}
+
 input CreatePodcastInput {
   title: String!
-  category: [String!]!
+  categoryName: String!
 }
 
 input EditPodcastInput {
   title: String
-  category: [String!]
+  categoryName: String
   podcastId: Float!
 }
 

@@ -14,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Podcast } from 'src/podcasts/entities/podcast.entity';
 import { Rating } from 'src/podcasts/entities/rating.entity';
+import { Episode } from 'src/podcasts/entities/episode.entity';
 
 export enum UserRole {
   Client = 'Client',
@@ -44,17 +45,27 @@ export class User extends CoreEntity {
   @IsEnum(UserRole)
   role: UserRole;
 
-  @OneToMany(() => Podcast, (podcast) => podcast.creator)
+  @OneToMany(() => Podcast, (podcast) => podcast.creator, { eager: true })
   @Field((typs) => [Podcast])
   podcasts: Podcast[];
 
   @Field((type) => [Rating], { nullable: true })
-  @OneToMany(() => Rating, (rating) => rating.ratedPerson, { nullable: true })
+  @OneToMany(() => Rating, (rating) => rating.ratedPerson, {
+    nullable: true,
+    eager: true,
+  })
   rated?: Rating[];
 
-  @ManyToMany(() => Podcast, (podcast) => podcast.subscribers)
+  @ManyToMany(() => Podcast, (podcast) => podcast.subscribers, { eager: true })
   @JoinTable()
   subscribedPodcast: Podcast[];
+
+  @ManyToMany(() => Episode, (episode) => episode.watchedUsers, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
+  @JoinTable()
+  watchedEpisodes: Episode[];
 
   @BeforeInsert()
   @BeforeUpdate()

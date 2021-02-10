@@ -103,8 +103,9 @@ export class EpisodeResolver {
   @Role(['Host'])
   async createEpisode(
     @Args('input') createEpisodeInput: CreateEpisodeInput,
+    @AuthUser() host: User,
   ): Promise<CreateEpisodeOutput> {
-    return this.podcastService.createEpisode(createEpisodeInput);
+    return this.podcastService.createEpisode(createEpisodeInput, host);
   }
 
   @Mutation((returns) => EditEpisodeOutput)

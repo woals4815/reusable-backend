@@ -9,9 +9,12 @@ import {
   RatingResolver,
 } from './podcasts.resolver';
 import { PodcastsService } from './podcasts.service';
+import { CategoryRepository } from './repositories/category.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Podcast, Episode, Rating])],
+  imports: [
+    TypeOrmModule.forFeature([Podcast, Episode, Rating, CategoryRepository]),
+  ],
   providers: [
     PodcastsService,
     PodcastResolver,

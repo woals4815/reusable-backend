@@ -38,6 +38,7 @@ import {
   SearchPodcastInput,
   SearchPodcastOutput,
 } from './dtos/search-podcast.dto';
+import { CategoryRepository } from './repositories/category.repository';
 
 @Injectable()
 export class PodcastsService {
@@ -48,6 +49,7 @@ export class PodcastsService {
     private episodeRepository: Repository<Episode>,
     @InjectRepository(Rating)
     private ratingRepositoy: Repository<Rating>,
+    private readonly categoryRepository: CategoryRepository,
   ) {}
   async getAllPodcasts(): Promise<Podcast[]> {
     try {
@@ -58,15 +60,18 @@ export class PodcastsService {
     }
   }
   async createPodcast(
-    { title, category }: CreatePodcastInput,
+    createPodcastInput: CreatePodcastInput,
     host: User,
   ): Promise<CreatePodcastOutput> {
     try {
-      const newPodcast = await this.podcastRepository.create({
-        title,
-        category,
-      });
+      const newPodcast = await this.podcastRepository.create(
+        createPodcastInput,
+      );
+      const category = await this.categoryRepository.getOrCreate(
+        createPodcastInput.categoryName,
+      );
       newPodcast.creator = host;
+      newPodcast.category = category;
       await this.podcastRepository.save(newPodcast);
       return {
         ok: true,
@@ -102,17 +107,22 @@ export class PodcastsService {
       };
     }
   }
-  async createEpisode({
-    title,
-    description,
-    podcastId,
-  }: CreateEpisodeInput): Promise<CreateEpisodeOutput> {
+  async createEpisode(
+    { title, description, podcastId }: CreateEpisodeInput,
+    host: User,
+  ): Promise<CreateEpisodeOutput> {
     try {
       const newEpisode = await this.episodeRepository.create({
         title,
         description,
       });
       const { podcast } = await this.findPodcastById(podcastId);
+      if (podcast.creatorId !== host.id) {
+        return {
+          ok: false,
+          error: 'This podcast is not yours.',
+        };
+      }
       newEpisode.podcast = podcast;
       await this.episodeRepository.save(newEpisode);
       return {
@@ -301,8 +311,11 @@ export class PodcastsService {
       if (input.title) {
         podcast.title = input.title;
       }
-      if (input.category) {
-        podcast.category = input.category;
+      if (input.categoryName) {
+        const category = await this.categoryRepository.getOrCreate(
+          input.categoryName,
+        );
+        podcast.category = category;
       }
       await this.podcastRepository.save(podcast);
       return {
@@ -434,7 +447,6 @@ export class PodcastsService {
   }
   async searchPodcastName({
     query,
-    page,
   }: SearchPodcastInput): Promise<SearchPodcastOutput> {
     try {
       const [podcasts, totalResult] = await this.podcastRepository.findAndCount(
@@ -452,7 +464,6 @@ export class PodcastsService {
       console.log(podcasts, totalResult);
       return {
         ok: true,
-        pageNumber: page,
         totalResultNumber: totalResult,
         searchResults: podcasts,
       };

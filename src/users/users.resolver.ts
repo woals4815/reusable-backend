@@ -5,7 +5,12 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { Role } from 'src/auth/user-role.decorator';
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
 import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
+import { GetWatchedEpisodesOutput } from './dtos/get-watched-episodes.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
+import {
+  MarkWatchedEpisodeInput,
+  MarkWatchedEpisodeOutput,
+} from './dtos/mark-watched.dto';
 import {
   GetSubscriptionInput,
   GetSubscriptionOutput,
@@ -39,6 +44,13 @@ export class UserResolver {
   ): Promise<GetSubscriptionOutput> {
     return this.usersService.getSubscriptions(user);
   }
+  @Role(['Any'])
+  @Query((returns) => GetWatchedEpisodesOutput)
+  async getWatchedEpisodes(
+    @AuthUser() user: User,
+  ): Promise<GetWatchedEpisodesOutput> {
+    return this.usersService.getWatchedEpisodes(user);
+  }
 
   @Role(['Any'])
   @Mutation((returns) => EditProfileOutput)
@@ -51,9 +63,18 @@ export class UserResolver {
   @Role(['Any'])
   @Mutation((returns) => ToggleSubscribeOutput)
   async toggleSubscribe(
-    @Args('input') podcastId: number,
+    @Args('podcastId') podcastId: number,
     @AuthUser() user: User,
   ): Promise<ToggleSubscribeOutput> {
     return this.usersService.toggleSubscribe(podcastId, user);
+  }
+
+  @Role(['Any'])
+  @Mutation((returns) => MarkWatchedEpisodeOutput)
+  async markWatchedEpisode(
+    @Args('input') input: MarkWatchedEpisodeInput,
+    @AuthUser() user: User,
+  ): Promise<MarkWatchedEpisodeOutput> {
+    return this.usersService.markWatchedEpisode(input, user);
   }
 }

@@ -9,6 +9,7 @@ import {
   OneToMany,
   RelationId,
 } from 'typeorm';
+import { Category } from './category.entity';
 import { Episode } from './episode.entity';
 import { Rating } from './rating.entity';
 
@@ -19,22 +20,29 @@ export class Podcast extends CoreEntity {
   @Column()
   title: string;
 
-  @Field((type) => [String])
-  @Column('text', { array: true })
-  category: string[];
+  @Field((type) => Category)
+  @ManyToOne(() => Category, (category) => category.podcasts, {
+    onDelete: 'SET NULL',
+  })
+  category: Category;
 
   @Field((type) => User)
-  @ManyToOne(() => User, (user) => user.podcasts, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.podcasts, {
+    onDelete: 'CASCADE',
+  })
   creator: User;
 
   @RelationId((podcast: Podcast) => podcast.creator)
   creatorId: number;
 
   @Field((type) => [Episode])
-  @OneToMany(() => Episode, (episode) => episode.podcast)
+  @OneToMany(() => Episode, (episode) => episode.podcast, { eager: true })
   episodes: Episode[];
 
-  @OneToMany(() => Rating, (rating) => rating.podcast, { nullable: true })
+  @OneToMany(() => Rating, (rating) => rating.podcast, {
+    nullable: true,
+    eager: true,
+  })
   @Field((type) => [Rating], { nullable: true })
   ratings?: Rating[];
 

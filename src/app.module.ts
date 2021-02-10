@@ -19,6 +19,7 @@ import { PodcastsModule } from './podcasts/podcasts.module';
 import { Podcast } from './podcasts/entities/podcast.entity';
 import { Episode } from './podcasts/entities/episode.entity';
 import { Rating } from './podcasts/entities/rating.entity';
+import { Category } from './podcasts/entities/category.entity';
 
 @Module({
   imports: [
@@ -38,11 +39,18 @@ import { Rating } from './podcasts/entities/rating.entity';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST,
-      port: +process.env.DB_PORT,
-      username: process.env.DB_USERNAME,
-      database: process.env.DB_NAME,
-      entities: [User, Podcast, Episode, Rating],
+      ...(process.env.DATABASE_URL
+        ? {
+            url: process.env.DATABASE_URL,
+          }
+        : {
+            host: process.env.DB_HOST,
+            port: +process.env.DB_PORT,
+            username: process.env.DB_USERNAME,
+            database: process.env.DB_NAME,
+            password: process.env.DB_PASSWORD,
+          }),
+      entities: [User, Podcast, Episode, Rating, Category],
       synchronize: process.env.NODE_ENV !== 'prod',
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
@@ -51,6 +59,8 @@ import { Rating } from './podcasts/entities/rating.entity';
     GraphQLModule.forRoot({
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       context: ({ req }) => ({ user: req['user'] }),
+      introspection: true,
+      playground: true,
     }),
     JwtModule.forRoot({
       priavateKey: process.env.PRIVATE_KEY,
