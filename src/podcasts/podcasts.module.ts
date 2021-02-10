@@ -4,6 +4,7 @@ import { Episode } from './entities/episode.entity';
 import { Podcast } from './entities/podcast.entity';
 import { Rating } from './entities/rating.entity';
 import {
+  CategoryResolver,
   EpisodeResolver,
   PodcastResolver,
   RatingResolver,
@@ -20,6 +21,7 @@ import { CategoryRepository } from './repositories/category.repository';
     PodcastResolver,
     EpisodeResolver,
     RatingResolver,
+    CategoryResolver,
   ],
   exports: [PodcastsService],
 })

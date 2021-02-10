@@ -19,6 +19,6 @@ export class Category extends CoreEntity {
   slug: string;
 
   @Field((type) => [Podcast])
-  @OneToMany(() => Podcast, (podcast) => podcast.category)
+  @OneToMany(() => Podcast, (podcast) => podcast.category, { eager: true })
   podcasts: Podcast[];
 }

@@ -59,7 +59,7 @@ import { Category } from './podcasts/entities/category.entity';
       ssl: true,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging:
-        process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
+        process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'dev',
     }),
     UsersModule,
     GraphQLModule.forRoot({

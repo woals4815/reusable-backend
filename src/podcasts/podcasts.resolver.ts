@@ -40,6 +40,13 @@ import {
   SearchPodcastInput,
   SearchPodcastOutput,
 } from './dtos/search-podcast.dto';
+import {
+  DeleteEpisodeInput,
+  DeleteOutput,
+  DeletePodcastInput,
+} from './dtos/delete.dto';
+import { Category } from './entities/category.entity';
+import { GetCategoriesOutput } from './dtos/get-categories.dto';
 
 @Resolver((of) => Podcast)
 export class PodcastResolver {
@@ -81,6 +88,14 @@ export class PodcastResolver {
   ): Promise<SearchPodcastOutput> {
     return this.podcastService.searchPodcastName(input);
   }
+  @Mutation((returns) => DeleteOutput)
+  @Role(['Host'])
+  async deletePodcast(
+    @Args('input') input: DeletePodcastInput,
+    @AuthUser() host: User,
+  ): Promise<DeleteOutput> {
+    return this.podcastService.deletePodcast(input, host);
+  }
 }
 @Resolver((of) => Episode)
 export class EpisodeResolver {
@@ -115,6 +130,14 @@ export class EpisodeResolver {
     @AuthUser() creator: User,
   ): Promise<EditEpisodeOutput> {
     return this.podcastService.editEpisode(input, creator);
+  }
+  @Mutation((returns) => DeleteOutput)
+  @Role(['Host'])
+  async deleteEpisode(
+    @Args('input') input: DeleteEpisodeInput,
+    @AuthUser() host: User,
+  ): Promise<DeleteOutput> {
+    return this.podcastService.deleteEpisode(input, host);
   }
 }
 
@@ -152,5 +175,13 @@ export class RatingResolver {
     @AuthUser() client: User,
   ) {
     return this.podcastService.editEpisodeRating(input, client);
+  }
+}
+@Resolver((of) => Category)
+export class CategoryResolver {
+  constructor(private readonly podcastService: PodcastsService) {}
+  @Query((returns) => GetCategoriesOutput)
+  getAllCategories(): Promise<GetCategoriesOutput> {
+    return this.podcastService.getAllCategories();
   }
 }

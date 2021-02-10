@@ -130,6 +130,17 @@ type SearchPodcastOutput {
   totalResultNumber: Float
 }
 
+type DeleteOutput {
+  ok: Boolean!
+  error: String
+}
+
+type GetCategoriesOutput {
+  ok: Boolean!
+  error: String
+  categories: [Category!]
+}
+
 type CreateUserOutput {
   ok: Boolean!
   error: String
@@ -177,6 +188,7 @@ type Query {
   searchPodcastName(input: SearchPodcastInput!): SearchPodcastOutput!
   getAllEpisodes(input: Float!): GetAllEpisodesOutput!
   getEpisode(input: GetEpisodeInput!): GetEpisodeOutput!
+  getAllCategories: GetCategoriesOutput!
 }
 
 input SearchPodcastInput {
@@ -196,8 +208,10 @@ type Mutation {
   markWatchedEpisode(input: MarkWatchedEpisodeInput!): MarkWatchedEpisodeOutput!
   createPodcast(input: CreatePodcastInput!): CreatePodcastOutput!
   editPodcast(input: EditPodcastInput!): EditPodcastOutput!
+  deletePodcast(input: DeletePodcastInput!): DeleteOutput!
   createEpisode(input: CreateEpisodeInput!): CreateEpisodeOutput!
   editEpisode(input: EditEpisodeInput!): EditEpisodeOutput!
+  deleteEpisode(input: DeleteEpisodeInput!): DeleteOutput!
   ratePodcast(input: CreatePodcastRatingInput!): CreatePodcastRatingOutput!
   rateEpisode(input: CreateEpisodeRatingInput!): CoreOutput!
   editPodcastRating(input: EditPodcastRatingInput!): EditPodcastRatingOutput!
@@ -238,6 +252,10 @@ input EditPodcastInput {
   podcastId: Float!
 }
 
+input DeletePodcastInput {
+  podcastId: Float!
+}
+
 input CreateEpisodeInput {
   podcastId: Float!
   title: String!
@@ -249,6 +267,11 @@ input EditEpisodeInput {
   episodeId: Float!
   title: String
   description: String
+}
+
+input DeleteEpisodeInput {
+  podcastId: Float!
+  episodeId: Float!
 }
 
 input CreatePodcastRatingInput {

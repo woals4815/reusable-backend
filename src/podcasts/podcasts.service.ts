@@ -39,6 +39,12 @@ import {
   SearchPodcastOutput,
 } from './dtos/search-podcast.dto';
 import { CategoryRepository } from './repositories/category.repository';
+import {
+  DeleteEpisodeInput,
+  DeleteOutput,
+  DeletePodcastInput,
+} from './dtos/delete.dto';
+import { GetCategoriesOutput } from './dtos/get-categories.dto';
 
 @Injectable()
 export class PodcastsService {
@@ -472,6 +478,72 @@ export class PodcastsService {
       return {
         ok: false,
         error: 'Cannot find the podcast.',
+      };
+    }
+  }
+  async deletePodcast(
+    { podcastId }: DeletePodcastInput,
+    host: User,
+  ): Promise<DeleteOutput> {
+    try {
+      const { podcast } = await this.findPodcastById(podcastId);
+      if (host.id !== podcast.creatorId) {
+        return {
+          ok: false,
+          error: 'You cannot delete the podcast.',
+        };
+      }
+      await this.podcastRepository.delete(podcastId);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        ok: false,
+        error: 'Cannot delete the podcast.',
+      };
+    }
+  }
+  async deleteEpisode(
+    input: DeleteEpisodeInput,
+    user: User,
+  ): Promise<DeleteOutput> {
+    try {
+      const { episode } = await this.getEpisode(input);
+      const { podcast } = await this.findPodcastById(episode.podcastId);
+      if (podcast.creatorId !== user.id) {
+        return {
+          ok: false,
+          error: 'You cannot delete the episode.',
+        };
+      }
+      await this.episodeRepository.delete(input.episodeId);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        ok: false,
+        error: 'Cannot delete the episode.',
+      };
+    }
+  }
+  async getAllCategories(): Promise<GetCategoriesOutput> {
+    try {
+      const categories = await this.categoryRepository.find({
+        relations: ['podcasts'],
+      });
+      return {
+        ok: true,
+        categories,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        ok: false,
+        error: 'Cannot get categories.',
       };
     }
   }
