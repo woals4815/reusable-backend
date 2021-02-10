@@ -51,6 +51,9 @@ import { Category } from './podcasts/entities/category.entity';
             password: process.env.DB_PASSWORD,
           }),
       entities: [User, Podcast, Episode, Rating, Category],
+      extra: {
+        ssl: true,
+      },
       synchronize: process.env.NODE_ENV !== 'prod',
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
