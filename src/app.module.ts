@@ -52,8 +52,11 @@ import { Category } from './podcasts/entities/category.entity';
           }),
       entities: [User, Podcast, Episode, Rating, Category],
       extra: {
-        ssl: true,
+        ssl: {
+          rejectUnauthorized: false,
+        },
       },
+      ssl: true,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
